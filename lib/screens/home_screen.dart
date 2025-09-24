@@ -119,6 +119,9 @@ class HomeScreen extends StatelessWidget {
           if (title == 'Profile') {
             Navigator.pushReplacementNamed(context, '/profile');
           }
+          if (title == 'Settings') {
+            Navigator.pushReplacementNamed(context, '/settings');
+          }
         },
         child: Container(
           padding: EdgeInsets.all(16),
