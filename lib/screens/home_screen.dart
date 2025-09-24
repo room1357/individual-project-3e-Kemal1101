@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // Handle logout
+              Navigator.pushReplacementNamed(context, '/logout');
             },
             icon: Icon(Icons.logout),
           ),
@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
               leading: Icon(Icons.logout),
               title: Text('Logout'),
               onTap: () {
-                // Handle logout
+                Navigator.pushReplacementNamed(context, '/logout');
               },
             ),
           ],
