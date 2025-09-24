@@ -57,7 +57,7 @@ class HomeScreen extends StatelessWidget {
               leading: Icon(Icons.person),
               title: Text('Profile'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/profile');
               },
             ),
             ListTile(
@@ -98,10 +98,10 @@ class HomeScreen extends StatelessWidget {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 children: [
-                  _buildDashboardCard('Profile', Icons.person, Colors.green),
-                  _buildDashboardCard('Messages', Icons.message, Colors.orange),
-                  _buildDashboardCard('Settings', Icons.settings, Colors.purple),
-                  _buildDashboardCard('Help', Icons.help, Colors.red),
+                  _buildDashboardCard(context, 'Profile', Icons.person, Colors.green),
+                  _buildDashboardCard(context, 'Messages', Icons.message, Colors.orange),
+                  _buildDashboardCard(context, 'Settings', Icons.settings, Colors.purple),
+                  _buildDashboardCard(context, 'Help', Icons.help, Colors.red),
                 ],
               ),
             ),
@@ -111,12 +111,14 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboardCard(String title, IconData icon, Color color) {
+  Widget _buildDashboardCard(BuildContext context,String title, IconData icon, Color color) {
     return Card(
       elevation: 4,
       child: InkWell(
         onTap: () {
-          // Handle card tap
+          if (title == 'Profile') {
+            Navigator.pushReplacementNamed(context, '/profile');
+          }
         },
         child: Container(
           padding: EdgeInsets.all(16),
