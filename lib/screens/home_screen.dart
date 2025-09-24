@@ -102,6 +102,7 @@ class HomeScreen extends StatelessWidget {
                   _buildDashboardCard(context, 'Messages', Icons.message, Colors.orange),
                   _buildDashboardCard(context, 'Settings', Icons.settings, Colors.purple),
                   _buildDashboardCard(context, 'Help', Icons.help, Colors.red),
+                  _buildDashboardCard(context, 'Expense', Icons.attach_money, Colors.teal),
                 ],
               ),
             ),
@@ -122,6 +123,9 @@ class HomeScreen extends StatelessWidget {
           if (title == 'Settings') {
             Navigator.pushReplacementNamed(context, '/settings');
           }
+          if (title == 'Expense') {
+          Navigator.pushReplacementNamed(context, '/expense');
+        }
         },
         child: Container(
           padding: EdgeInsets.all(16),
