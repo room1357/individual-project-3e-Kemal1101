@@ -99,12 +99,23 @@ class RegisterScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Already have an account? "),
+                Text(
+                  "Already have an account? ",
+                  style: TextStyle(fontSize: 14),
+                ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero, // Tidak ada padding
+                    minimumSize: Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   onPressed: () {
-                    // Navigate to login
+                    Navigator.pop(context); // Navigasi ke login
                   },
-                  child: Text('Login'),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -43,6 +44,7 @@ class LoginScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.lock),
               ),
             ),
+
             SizedBox(height: 24),
 
             // Login Button
@@ -62,18 +64,30 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 16),
-
-            // Register Link
+            SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Don't have an account? "),
+                Text(
+                  "Don't have an account? ",
+                  style: TextStyle(fontSize: 14),
+                ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.only(left: 2), // Sedikit jarak ke kiri
+                    minimumSize: Size(0, 0), // Supaya lebih rapat
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   onPressed: () {
-                    // Navigate to register
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    );
                   },
-                  child: Text('Register'),
+                  child: Text(
+                    "Register",
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ],
             ),
