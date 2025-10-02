@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
             SizedBox(height: 32),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/settings');
+                Navigator.pop(context);
               },
               child: Text('Kembali'),
             ),

@@ -118,13 +118,13 @@ class HomeScreen extends StatelessWidget {
       child: InkWell(
         onTap: () {
           if (title == 'Profile') {
-            Navigator.pushReplacementNamed(context, '/profile');
+            Navigator.pushNamed(context, '/profile');
           }
           if (title == 'Settings') {
-            Navigator.pushReplacementNamed(context, '/settings');
+            Navigator.pushNamed(context, '/settings');
           }
           if (title == 'Expense') {
-          Navigator.pushReplacementNamed(context, '/expense');
+          Navigator.pushNamed(context, '/expense');
         }
         },
         child: Container(

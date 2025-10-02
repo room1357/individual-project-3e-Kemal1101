@@ -21,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pop(context);
               },
               child: Text('Kembali'),
             ),

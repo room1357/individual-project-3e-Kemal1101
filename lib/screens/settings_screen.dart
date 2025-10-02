@@ -39,15 +39,14 @@ class SettingsScreen extends StatelessWidget {
             title: Text('About'),
             subtitle: Text('App information'),
             onTap: () {
-              Navigator.
-              pushReplacementNamed(context, '/about');
+              Navigator.pushNamed(context, '/about');
             },
           ),
 
           SizedBox(height: 24),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/home');
+              Navigator.pop(context);
             },
             child: Text('Kembali'),
           ),
