@@ -60,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
+      floatingActionButton: _buildFloatingActionButton(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -86,6 +87,29 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed, // Agar semua item terlihat
       ),
     );
+  }
+
+  Widget? _buildFloatingActionButton() {
+    if (_selectedIndex == 0 || _selectedIndex == 1) {
+      return FloatingActionButton(
+        onPressed: () {
+          if (_selectedIndex == 0) {
+            // Aksi untuk menambah produk baru
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Menambah produk baru...')),
+            );
+          } else if (_selectedIndex == 1) {
+            // Aksi untuk menambah pengeluaran baru
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Menambah pengeluaran baru...')),
+            );
+          }
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add),
+      );
+    }
+    return null; // Tidak menampilkan FAB di halaman lain
   }
 }
 
