@@ -192,14 +192,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     final categories = ['Semua', ..._allExpenses.map((e) => e.category).toSet().toList()];
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('Daftar Pengeluaran'),
-        backgroundColor: Colors.teal,
-      ),
       body: Column(
         children: [
           // Search bar
@@ -229,7 +221,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 child: FilterChip(
                   label: Text(category),
                   selected: _selectedCategory == category,
-                  selectedColor: Colors.teal.withOpacity(0.3),
+                  selectedColor: Colors.blue.withOpacity(0.3),
                   onSelected: (selected) {
                     setState(() {
                       _selectedCategory = category;

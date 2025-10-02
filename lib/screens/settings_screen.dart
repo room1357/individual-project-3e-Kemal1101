@@ -6,10 +6,6 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-        backgroundColor: Colors.blue,
-      ),
       body: ListView(
         padding: EdgeInsets.all(16),
         children: [
@@ -41,14 +37,6 @@ class SettingsScreen extends StatelessWidget {
             onTap: () {
               Navigator.pushNamed(context, '/about');
             },
-          ),
-
-          SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Kembali'),
           ),
         ],
       ),
