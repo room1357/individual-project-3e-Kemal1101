@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'expense_screen.dart';
 import 'profile_screen.dart';
 import 'settings_screen.dart';
+import '/models/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final User user;
 
+  // Ubah constructor untuk menerima user
+  const HomeScreen({super.key, required this.user});
+  
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -13,12 +17,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    ProductGrid(),
-    ExpenseScreen(),
-    ProfileScreen(),
-    SettingsScreen(),
-  ];
+  late final List<Widget> _widgetOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi daftar widget di sini
+    _widgetOptions = <Widget>[
+      const ProductGrid(),
+      const ExpenseScreen(),
+      ProfileScreen(user: widget.user), // Teruskan user ke ProfileScreen
+      const SettingsScreen(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
