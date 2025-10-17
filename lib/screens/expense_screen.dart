@@ -37,6 +37,16 @@ class ExpenseManager {
   static List<Expense> expenses = [
   ];
 
+  // Daftar kategori terpusat
+  static List<String> categories = [
+    'Makanan',
+    'Transportasi',
+    'Hiburan',
+    'Kebutuhan',
+    'Pendidikan',
+    'Utilitas',
+  ];
+
   // Fungsi-fungsi lain tidak diperlukan untuk UI baru ini, tapi bisa disimpan
 }
 

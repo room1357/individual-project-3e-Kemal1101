@@ -24,15 +24,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   late String? _selectedCategory;
   late DateTime? _selectedDate;
 
-  final List<String> _categories = [
-    'Makanan',
-    'Transportasi',
-    'Hiburan',
-    'Kebutuhan',
-    'Pendidikan',
-    'Utilitas',
-    'Lainnya'
-  ];
+  final List<String> _categories = ExpenseManager.categories;
 
   @override
   void initState() {

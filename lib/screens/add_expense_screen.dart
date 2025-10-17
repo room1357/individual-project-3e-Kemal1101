@@ -18,16 +18,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   String? _selectedCategory;
   DateTime? _selectedDate;
 
-  // Kategori yang bisa dipilih
-  final List<String> _categories = [
-    'Makanan',
-    'Transportasi',
-    'Hiburan',
-    'Kebutuhan',
-    'Pendidikan',
-    'Utilitas',
-    'Lainnya'
-  ];
+  // Kategori diambil dari ExpenseManager
+  final List<String> _categories = ExpenseManager.categories;
 
   @override
   void dispose() {

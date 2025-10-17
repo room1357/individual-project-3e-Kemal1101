@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'about_screen.dart';
+import 'category_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -31,11 +33,28 @@ class SettingsScreen extends StatelessWidget {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.info),
-            title: Text('About'),
-            subtitle: Text('App information'),
+            leading: const Icon(Icons.info),
+            title: const Text('About'),
+            subtitle: const Text('App information'),
             onTap: () {
-              Navigator.pushNamed(context, '/about');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutScreen()),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('Kelola Kategori'),
+            subtitle: const Text('Tambah, edit, atau hapus kategori pengeluaran'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CategorySettingsScreen()),
+              );
             },
           ),
         ],
