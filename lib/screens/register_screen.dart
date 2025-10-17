@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/models/user_model.dart'; // Impor model dan list users
+import '../logic/auth_logic.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,12 +9,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Buat controller untuk setiap TextField
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _authLogic = AuthLogic();
 
   void _register() {
     final String fullName = _fullNameController.text;
@@ -23,7 +23,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final String password = _passwordController.text;
     final String confirmPassword = _confirmPasswordController.text;
 
-    // 1. Validasi input tidak boleh kosong
     if (fullName.isEmpty || email.isEmpty || username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua kolom harus diisi!'), backgroundColor: Colors.red),
@@ -31,7 +30,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // 2. Validasi password dan konfirmasi password harus sama
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password tidak cocok!'), backgroundColor: Colors.red),
@@ -39,33 +37,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // 3. Validasi username tidak boleh sudah ada
-    if (users.any((user) => user.username == username)) {
+    final bool isRegistered = _authLogic.register(fullName, username, email, password);
+
+    if (isRegistered) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registrasi berhasil! Silakan login.'), backgroundColor: Colors.green),
+      );
+      Navigator.pop(context);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Username sudah digunakan!'), backgroundColor: Colors.red),
       );
-      return;
     }
-
-    // Jika semua validasi berhasil:
-    // Buat objek User baru
-    final newUser = User(
-      fullName: fullName,
-      email: email,
-      username: username,
-      password: password,
-    );
-
-    // Tambahkan user baru ke list 'users'
-    users.add(newUser);
-
-    // Tampilkan notifikasi sukses
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registrasi berhasil! Silakan login.'), backgroundColor: Colors.green),
-    );
-
-    // Kembali ke halaman login
-    Navigator.pop(context);
   }
 
   @override

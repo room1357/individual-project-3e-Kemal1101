@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '/models/user_model.dart';
+import '../logic/auth_logic.dart';
+import '../models/user_model.dart';
 import 'register_screen.dart';
-import 'home_screen.dart'; // Import home_screen untuk navigasi
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final Function(User) onLogin;
+
+  const LoginScreen({super.key, required this.onLogin});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -13,25 +15,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authLogic = AuthLogic();
 
   void _login() {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    try {
-      // Temukan objek user yang cocok, jangan hanya memeriksa keberadaannya.
-      final User loggedInUser = users.firstWhere(
-        (user) => user.username == username && user.password == password,
-      );
+    final User? loggedInUser = _authLogic.login(username, password);
 
-      // Jika user ditemukan, navigasi ke home DAN kirim data user.
-      Navigator.pushReplacementNamed(
-        context,
-        '/home', // Nama rute yang didefinisikan di onGenerateRoute
-        arguments: loggedInUser, // Kirim objek user sebagai argumen
-      );
-    } catch (e) {
-      // Jika user tidak ditemukan (firstWhere melempar error)
+    if (loggedInUser != null) {
+      widget.onLogin(loggedInUser);
+    } else {
+      // Jika user tidak ditemukan
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Username atau password salah!'),

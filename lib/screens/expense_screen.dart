@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'add_expense_screen.dart'; // Impor layar tambah pengeluaran
+import 'edit_expense_screen.dart'; // Impor layar edit
 
 // --- MODEL DATA (Tidak berubah) ---
 class Expense {
@@ -33,15 +35,6 @@ class Expense {
 class ExpenseManager {
   // Data contoh
   static List<Expense> expenses = [
-    Expense(title: 'Kopi Susu', description: 'Meeting dengan klien', amount: 25000, category: 'Makanan', date: DateTime(2025, 9, 22)),
-    Expense(title: 'Nasi Goreng', description: 'Makan malam', amount: 35000, category: 'Makanan', date: DateTime(2025, 9, 22)),
-    Expense(title: 'Bensin Motor', description: 'Isi full tank', amount: 50000, category: 'Transportasi', date: DateTime(2025, 9, 23)),
-    Expense(title: 'Tiket Bioskop', description: 'Nonton film baru', amount: 45000, category: 'Hiburan', date: DateTime(2025, 9, 24)),
-    Expense(title: 'Paket Data', description: 'Kuota bulanan', amount: 120000, category: 'Kebutuhan', date: DateTime(2025, 8, 28)),
-    Expense(title: 'Parkir', description: 'Parkir di mall', amount: 5000, category: 'Transportasi', date: DateTime(2025, 9, 24)),
-    Expense(title: 'Makan Siang', description: 'Warung padang', amount: 28000, category: 'Makanan', date: DateTime(2025, 8, 20)),
-    Expense(title: 'Beli Buku', description: 'Buku pemrograman', amount: 95000, category: 'Pendidikan', date: DateTime(2025, 9, 15)),
-    Expense(title: 'Listrik', description: 'Token listrik', amount: 150000, category: 'Utilitas', date: DateTime(2025, 9, 5)),
   ];
 
   // Fungsi-fungsi lain tidak diperlukan untuk UI baru ini, tapi bisa disimpan
@@ -60,6 +53,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   final List<Expense> _allExpenses = ExpenseManager.expenses;
   List<Expense> _filteredExpenses = [];
   String _selectedCategory = 'Semua';
+  DateTime? _selectedMonth; // State untuk filter bulan
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -68,6 +62,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     // Urutkan data dari yang terbaru
     _allExpenses.sort((a, b) => b.date.compareTo(a.date));
     _filteredExpenses = _allExpenses;
+    _filterExpenses(); // Panggil filter saat inisialisasi
   }
 
   @override
@@ -79,16 +74,65 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   void _filterExpenses() {
     setState(() {
       _filteredExpenses = _allExpenses.where((expense) {
-        bool matchesSearch = _searchController.text.isEmpty ||
-            expense.title.toLowerCase().contains(_searchController.text.toLowerCase()) ||
-            expense.description.toLowerCase().contains(_searchController.text.toLowerCase());
+        final search = _searchController.text.toLowerCase();
+        bool matchesSearch = search.isEmpty ||
+            expense.title.toLowerCase().contains(search) ||
+            expense.description.toLowerCase().contains(search);
 
         bool matchesCategory = _selectedCategory == 'Semua' ||
             expense.category == _selectedCategory;
+        
+        // Logika filter bulan
+        bool matchesMonth = _selectedMonth == null ||
+            (expense.date.year == _selectedMonth!.year && expense.date.month == _selectedMonth!.month);
 
-        return matchesSearch && matchesCategory;
+        return matchesSearch && matchesCategory && matchesMonth;
       }).toList();
     });
+  }
+
+  // Fungsi untuk navigasi ke halaman tambah dan refresh data setelah kembali
+  void _navigateAndRefresh() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddExpenseScreen()),
+    );
+
+    // Jika `result` adalah true, berarti ada data baru yang ditambahkan
+    if (result == true) {
+      setState(() {
+        // Urutkan ulang daftar utama karena ada item baru
+        _allExpenses.sort((a, b) => b.date.compareTo(a.date));
+        // Terapkan filter lagi untuk memperbarui UI
+        _filterExpenses();
+      });
+    }
+  }
+
+  // Fungsi untuk navigasi ke halaman edit dan refresh data setelah kembali
+  void _navigateToEdit(Expense expense) async {
+    // Dapatkan indeks item yang akan diedit dari daftar utama
+    final int expenseIndex = _allExpenses.indexOf(expense);
+    if (expenseIndex == -1) return; // Pengaman jika item tidak ditemukan
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditExpenseScreen(
+          expense: expense,
+          expenseIndex: expenseIndex,
+        ),
+      ),
+    );
+
+    // Jika `result` adalah true, berarti ada perubahan yang disimpan
+    if (result == true) {
+      setState(() {
+        // Urutkan ulang dan filter lagi untuk memperbarui UI
+        _allExpenses.sort((a, b) => b.date.compareTo(a.date));
+        _filterExpenses();
+      });
+    }
   }
 
   Widget _buildStatCard(String label, String value) {
@@ -179,6 +223,22 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   Text(expense.formattedDate, style: const TextStyle(fontSize: 16, color: Colors.grey)),
                 ],
               ),
+              const SizedBox(height: 24),
+              // Tombol Edit
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup modal
+                    _navigateToEdit(expense); // Panggil fungsi navigasi edit
+                  },
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text('EDIT'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.orange[800],
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -190,8 +250,20 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   Widget build(BuildContext context) {
     // Daftar kategori dinamis dari data yang ada + 'Semua'
     final categories = ['Semua', ..._allExpenses.map((e) => e.category).toSet().toList()];
+    
+    // Daftar bulan dinamis dari data yang ada
+    final months = _allExpenses
+        .map((e) => DateTime(e.date.year, e.date.month))
+        .toSet()
+        .toList();
 
     return Scaffold(
+      // Tombol Tambah Pengeluaran
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateAndRefresh,
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add),
+      ),
       body: Column(
         children: [
           // Search bar
@@ -210,26 +282,60 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             ),
           ),
 
-          // Category filter
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: categories.map((category) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(category),
-                  selected: _selectedCategory == category,
-                  selectedColor: Colors.blue.withOpacity(0.3),
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedCategory = category;
-                      _filterExpenses();
-                    });
-                  },
+          // Filter Row
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                // Filter Bulan
+                Expanded(
+                  child: DropdownButton<DateTime?>( // Izinkan nilai null
+                    isExpanded: true,
+                    value: _selectedMonth,
+                    hint: const Text('Semua Bulan'),
+                    onChanged: (DateTime? newValue) {
+                      setState(() {
+                        _selectedMonth = newValue;
+                        _filterExpenses();
+                      });
+                    },
+                    items: [
+                      // Tambahkan item "Semua Bulan" secara manual
+                      const DropdownMenuItem<DateTime?>(
+                        value: null,
+                        child: Text('Semua Bulan'),
+                      ),
+                      // Tambahkan sisa bulan dari data
+                      ...months.map<DropdownMenuItem<DateTime?>>((DateTime month) {
+                        return DropdownMenuItem<DateTime?>(
+                          value: month,
+                          child: Text(DateFormat('MMMM yyyy', 'id_ID').format(month)),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-              )).toList(),
+                const SizedBox(width: 16),
+                // Filter Kategori
+                Expanded(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: _selectedCategory,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCategory = newValue!;
+                        _filterExpenses();
+                      });
+                    },
+                    items: categories.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
           ),
 

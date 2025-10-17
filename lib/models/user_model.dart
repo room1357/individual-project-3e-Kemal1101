@@ -12,17 +12,3 @@ class User {
   });
 }
 
-final List<User> users = [
-  User(
-    fullName: 'John Doe',
-    email: 'p5PfA@example.com',
-    username: 'johndoe',
-    password: 'password123',
-  ),
-  User(
-    fullName: 'Uchiha Sasuke',
-    email: 'SasukeSaskeh@example.com',
-    username: 'sasuke',
-    password: 'password123',
-  ),
-];
