@@ -19,6 +19,7 @@ class EditExpenseScreen extends StatefulWidget {
 
 class _EditExpenseScreenState extends State<EditExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _amountController;
   late int? _selectedCategoryId;
@@ -33,6 +34,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     super.initState();
     _fetchCategories();
     // Isi form dengan data yang ada dari widget.expense
+    _titleController = TextEditingController(text: widget.expense.judul);
     _descriptionController = TextEditingController(text: widget.expense.description);
     _amountController = TextEditingController(text: widget.expense.amount.toStringAsFixed(0));
     _selectedCategoryId = widget.expense.categoryId;
@@ -41,7 +43,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   
   Future<void> _fetchCategories() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost/expenseapp/get_categories.php'));
+      final response = await http.get(Uri.parse('http://172.16.1.125/expenseapp/get_categories.php'));
       if (response.statusCode == 200) {
         final List<dynamic> categoryJson = json.decode(response.body);
         setState(() {
@@ -63,6 +65,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
 
   @override
   void dispose() {
+    _titleController.dispose();
     _descriptionController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -89,13 +92,14 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://localhost/expenseapp/edit_expense.php');
+        final uri = Uri.parse('http://172.16.1.125/expenseapp/edit_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'expense_id': widget.expense.expenseId, // Kirim ID pengeluaran yang akan diubah
             'category_id': _selectedCategoryId,
+            'judul': _titleController.text,
             'amount': _amountController.text.replaceAll('.', ''),
             'description': _descriptionController.text,
             'date': DateFormat('yyyy-MM-dd').format(_selectedDate!),
@@ -158,7 +162,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://localhost/expenseapp/delete_expense.php');
+        final uri = Uri.parse('http://172.16.1.125/expenseapp/delete_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},
@@ -213,6 +217,16 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Form fields (sama seperti AddExpenseScreen, tapi sudah terisi)
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Judul',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.title),
+                ),
+                validator: (value) => value!.isEmpty ? 'Judul tidak boleh kosong' : null,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(

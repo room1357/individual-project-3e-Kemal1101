@@ -31,7 +31,7 @@ class Expense {
   });
 
   // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'title')
-  String get title => description;
+  String get title => judul;
   // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'category')
   String get category => categoryName;
 
@@ -106,7 +106,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     });
 
     try {
-      final uri = Uri.parse('http://localhost/expenseapp/get_expense.php?user_id=${widget.user.userId}');
+      final uri = Uri.parse('http://172.16.1.125/expenseapp/get_expense.php?user_id=${widget.user.userId}');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {

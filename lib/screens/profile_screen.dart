@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '/models/user_model.dart';
 class ProfileScreen extends StatelessWidget {
-  // Tambahkan properti untuk menerima data user
+  // Tambahkan properti untuk menerima data user dan fungsi logout
   final User user;
+  final VoidCallback onLogout;
 
-  // Ubah constructor untuk menerima user
-  const ProfileScreen({super.key, required this.user});
+  // Ubah constructor untuk menerima user dan onLogout
+  const ProfileScreen({super.key, required this.user, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +25,8 @@ class ProfileScreen extends StatelessWidget {
             Text(user.email, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/logout');
-              },
-              child: const Text('Logout'), // Ganti teks tombol
+              onPressed: onLogout, // Panggil fungsi onLogout
+              child: const Text('Logout'),
             ),
           ],
         ),

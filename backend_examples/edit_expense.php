@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-$servername = "localhost";
+$servername = "172.16.1.125";
 $username = "root";
 $password = "";
 $dbname = "db_expense_app";
@@ -27,6 +27,7 @@ $data = json_decode(file_get_contents("php://input"));
 if (
     !isset($data->expense_id) ||
     !isset($data->category_id) ||
+    !isset($data->judul) ||
     !isset($data->amount) ||
     !isset($data->description) ||
     !isset($data->date)
@@ -38,17 +39,18 @@ if (
 
 $expense_id = $conn->real_escape_string($data->expense_id);
 $category_id = $conn->real_escape_string($data->category_id);
+$judul = $conn->real_escape_string($data->judul);
 $amount = $conn->real_escape_string($data->amount);
 $description = $conn->real_escape_string($data->description);
 $date = $conn->real_escape_string($data->date);
 
-$stmt = $conn->prepare("UPDATE expenses SET category_id = ?, amount = ?, description = ?, date = ? WHERE expense_id = ?");
+$stmt = $conn->prepare("UPDATE expenses SET category_id = ?, judul = ?, amount = ?, description = ?, date = ? WHERE expense_id = ?");
 if ($stmt === false) {
     http_response_code(500);
     die(json_encode(["status" => "error", "message" => "Gagal mempersiapkan statement: " . $conn->error]));
 }
 
-$stmt->bind_param("idssi", $category_id, $amount, $description, $date, $expense_id);
+$stmt->bind_param("isdssi", $category_id, $judul, $amount, $description, $date, $expense_id);
 
 if ($stmt->execute()) {
     if ($stmt->affected_rows > 0) {

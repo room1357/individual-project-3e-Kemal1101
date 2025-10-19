@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
-$servername = "localhost";
+$servername = "172.16.1.125";
 $username = "root";
 $password = "";
 $dbname = "db_expense_app";

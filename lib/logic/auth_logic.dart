@@ -7,7 +7,7 @@ class AuthLogic {
 
   Future<void> _fetchUsers() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost/expenseapp/get_users.php'));
+      final response = await http.get(Uri.parse('http://172.16.1.125/expenseapp/get_users.php'));
 
       if (response.statusCode == 200) {
         final List<dynamic> userJson = json.decode(response.body);
@@ -50,7 +50,7 @@ class AuthLogic {
     }
 
     try {
-      final uri = Uri.parse('http://localhost/expenseapp/register_users.php');
+      final uri = Uri.parse('http://172.16.1.125/expenseapp/register_users.php');
       final response = await http.post(
         uri,
         headers: {

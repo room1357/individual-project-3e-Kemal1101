@@ -29,6 +29,7 @@ class AddExpenseScreen extends StatefulWidget {
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController(); // Ditambahkan
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
 
@@ -46,7 +47,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Future<void> _fetchCategories() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost/expenseapp/get_categories.php'));
+      final response = await http.get(Uri.parse('http://172.16.1.125/expenseapp/get_categories.php'));
       if (response.statusCode == 200) {
         final List<dynamic> categoryJson = json.decode(response.body);
         setState(() {
@@ -68,6 +69,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   void dispose() {
+    _titleController.dispose(); // Ditambahkan
     _descriptionController.dispose();
     _amountController.dispose();
     super.dispose();
@@ -94,14 +96,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://localhost/expenseapp/add_expense.php');
+        final uri = Uri.parse('http://172.16.1.125/expenseapp/add_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
             'user_id': widget.user.userId,
             'category_id': _selectedCategoryId,
-            'amount': _amountController.text.replaceAll('.', ''),
+            'judul': _titleController.text, // Ditambahkan
+            'amount': double.tryParse(_amountController.text.replaceAll('.', '')),
             'description': _descriptionController.text,
             'date': DateFormat('yyyy-MM-dd').format(_selectedDate!),
           }),
@@ -145,6 +148,23 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Input Judul
+              TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Judul',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.title),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Judul tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
               // Input Deskripsi (menggantikan judul)
               TextFormField(
                 controller: _descriptionController,
