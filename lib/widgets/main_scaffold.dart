@@ -23,7 +23,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void initState() {
     super.initState();
     _widgetOptions = <Widget>[
-      const ExpenseScreen(),
+      ExpenseScreen(user: widget.user),
       ProfileScreen(user: widget.user),
       const SettingsScreen(),
     ];

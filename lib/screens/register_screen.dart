@@ -15,8 +15,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authLogic = AuthLogic();
+  bool _isLoading = false;
 
-  void _register() {
+  void _register() async {
     final String fullName = _fullNameController.text;
     final String email = _emailController.text;
     final String username = _usernameController.text;
@@ -37,7 +38,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final bool isRegistered = _authLogic.register(fullName, username, email, password);
+    setState(() {
+      _isLoading = true;
+    });
+
+    final bool isRegistered = await _authLogic.register(fullName, username, email, password);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
 
     if (isRegistered) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -46,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username sudah digunakan!'), backgroundColor: Colors.red),
+        const SnackBar(content: Text('Username sudah digunakan atau terjadi kesalahan!'), backgroundColor: Colors.red),
       );
     }
   }
@@ -137,15 +148,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _register, // Panggil fungsi _register
+                  onPressed: _isLoading ? null : _register, // Panggil fungsi _register
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'REGISTER',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text(
+                          'REGISTER',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),

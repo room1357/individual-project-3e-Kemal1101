@@ -17,22 +17,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final _authLogic = AuthLogic();
 
-  void _login() {
+  void _login() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    final User? loggedInUser = _authLogic.login(username, password);
+    final User? loggedInUser = await _authLogic.login(username, password);
 
     if (loggedInUser != null) {
-      widget.onLogin(loggedInUser);
+      if (mounted) {
+        widget.onLogin(loggedInUser);
+      }
     } else {
       // Jika user tidak ditemukan
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Username atau password salah!'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Username atau password salah!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

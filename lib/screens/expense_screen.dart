@@ -1,23 +1,53 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'add_expense_screen.dart'; // Impor layar tambah pengeluaran
-import 'edit_expense_screen.dart'; // Impor layar edit
+import '../models/user_model.dart'; // Impor User model
+import 'add_expense_screen.dart';
+import 'edit_expense_screen.dart';
 
-// --- MODEL DATA (Tidak berubah) ---
+// --- MODEL DATA (Diperbarui untuk cocok dengan JSON dari DB) ---
 class Expense {
-  final String title;
-  final String description;
+  final int expenseId;
+  final int userId;
+  final int categoryId;
+  final String categoryName;
+  final String? categoryIcon;
+  final String judul;
   final double amount;
-  final String category;
+  final String description;
   final DateTime date;
 
   Expense({
-    required this.title,
-    required this.description,
+    required this.expenseId,
+    required this.userId,
+    required this.categoryId,
+    required this.judul,
+    required this.categoryName,
+    this.categoryIcon,
     required this.amount,
-    required this.category,
+    required this.description,
     required this.date,
   });
+
+  // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'title')
+  String get title => description;
+  // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'category')
+  String get category => categoryName;
+
+  factory Expense.fromJson(Map<String, dynamic> json) {
+    return Expense(
+      expenseId: json['expense_id'] as int,
+      userId: json['user_id'] as int,
+      categoryId: json['category_id'] as int,
+      judul: json['judul'] as String,
+      categoryName: json['category_name'] as String,
+      categoryIcon: json['category_icon'] as String?,
+      amount: (json['amount'] as num).toDouble(),
+      description: json['description'] as String,
+      date: DateTime.parse(json['date']),
+    );
+  }
 
   // Helper untuk format mata uang
   String get formattedAmount {
@@ -31,13 +61,8 @@ class Expense {
   }
 }
 
-// --- LOGIC MANAGER (Tidak berubah) ---
+// --- LOGIC MANAGER (Tidak digunakan lagi, data diambil dari API) ---
 class ExpenseManager {
-  // Data contoh
-  static List<Expense> expenses = [
-  ];
-
-  // Daftar kategori terpusat
   static List<String> categories = [
     'Makanan',
     'Transportasi',
@@ -46,33 +71,63 @@ class ExpenseManager {
     'Pendidikan',
     'Utilitas',
   ];
-
-  // Fungsi-fungsi lain tidak diperlukan untuk UI baru ini, tapi bisa disimpan
 }
 
 
-// --- UI SCREEN (Versi Advanced) ---
+// --- UI SCREEN (Versi Advanced dengan data dari Database) ---
 class ExpenseScreen extends StatefulWidget {
-  const ExpenseScreen({super.key});
+  final User user; // Terima user yang sedang login
+  const ExpenseScreen({super.key, required this.user});
 
   @override
   _ExpenseScreenState createState() => _ExpenseScreenState();
 }
 
 class _ExpenseScreenState extends State<ExpenseScreen> {
-  final List<Expense> _allExpenses = ExpenseManager.expenses;
+  List<Expense> _allExpenses = [];
   List<Expense> _filteredExpenses = [];
   String _selectedCategory = 'Semua';
-  DateTime? _selectedMonth; // State untuk filter bulan
+  DateTime? _selectedMonth;
   final TextEditingController _searchController = TextEditingController();
+
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    // Urutkan data dari yang terbaru
-    _allExpenses.sort((a, b) => b.date.compareTo(a.date));
-    _filteredExpenses = _allExpenses;
-    _filterExpenses(); // Panggil filter saat inisialisasi
+    _fetchExpenses();
+  }
+
+  Future<void> _fetchExpenses() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final uri = Uri.parse('http://localhost/expenseapp/get_expense.php?user_id=${widget.user.userId}');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> expenseJson = json.decode(response.body);
+        setState(() {
+          _allExpenses = expenseJson.map((json) => Expense.fromJson(json)).toList();
+          // Data sudah diurutkan dari server (ORDER BY date DESC)
+          _filterExpenses();
+        });
+      } else {
+        throw Exception('Gagal memuat data dari server: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -90,7 +145,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             expense.description.toLowerCase().contains(search);
 
         bool matchesCategory = _selectedCategory == 'Semua' ||
-            expense.category == _selectedCategory;
+            expense.categoryName == _selectedCategory;
         
         // Logika filter bulan
         bool matchesMonth = _selectedMonth == null ||
@@ -105,43 +160,29 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   void _navigateAndRefresh() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AddExpenseScreen()),
+      MaterialPageRoute(builder: (context) => AddExpenseScreen(user: widget.user)),
     );
 
-    // Jika `result` adalah true, berarti ada data baru yang ditambahkan
+    // Jika `result` adalah true, berarti ada data baru, panggil API lagi
     if (result == true) {
-      setState(() {
-        // Urutkan ulang daftar utama karena ada item baru
-        _allExpenses.sort((a, b) => b.date.compareTo(a.date));
-        // Terapkan filter lagi untuk memperbarui UI
-        _filterExpenses();
-      });
+      _fetchExpenses();
     }
   }
 
   // Fungsi untuk navigasi ke halaman edit dan refresh data setelah kembali
   void _navigateToEdit(Expense expense) async {
-    // Dapatkan indeks item yang akan diedit dari daftar utama
-    final int expenseIndex = _allExpenses.indexOf(expense);
-    if (expenseIndex == -1) return; // Pengaman jika item tidak ditemukan
-
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditExpenseScreen(
           expense: expense,
-          expenseIndex: expenseIndex,
         ),
       ),
     );
 
-    // Jika `result` adalah true, berarti ada perubahan yang disimpan
+    // Jika `result` adalah true, berarti ada perubahan, panggil API lagi
     if (result == true) {
-      setState(() {
-        // Urutkan ulang dan filter lagi untuk memperbarui UI
-        _allExpenses.sort((a, b) => b.date.compareTo(a.date));
-        _filterExpenses();
-      });
+      _fetchExpenses();
     }
   }
 
@@ -259,7 +300,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     // Daftar kategori dinamis dari data yang ada + 'Semua'
-    final categories = ['Semua', ..._allExpenses.map((e) => e.category).toSet().toList()];
+    final categories = ['Semua', ..._allExpenses.map((e) => e.categoryName).toSet().toList()];
     
     // Daftar bulan dinamis dari data yang ada
     final months = _allExpenses
@@ -368,33 +409,40 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
           // Expense list
           Expanded(
-            child: _filteredExpenses.isEmpty
-                ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
-                : ListView.builder(
-                    itemCount: _filteredExpenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = _filteredExpenses[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: _getCategoryColor(expense.category),
-                            child: Icon(_getCategoryIcon(expense.category), color: Colors.white, size: 20),
-                          ),
-                          title: Text(expense.title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text('${expense.category} • ${expense.formattedDate}'),
-                          trailing: Text(
-                            expense.formattedAmount,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red[700],
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                    ? Center(child: Text(_errorMessage!, textAlign: TextAlign.center))
+                    : _filteredExpenses.isEmpty
+                        ? const Center(child: Text('Tidak ada pengeluaran ditemukan'))
+                        : RefreshIndicator(
+                            onRefresh: _fetchExpenses,
+                            child: ListView.builder(
+                              itemCount: _filteredExpenses.length,
+                              itemBuilder: (context, index) {
+                                final expense = _filteredExpenses[index];
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: _getCategoryColor(expense.categoryName),
+                                      child: Icon(_getCategoryIcon(expense.categoryName), color: Colors.white, size: 20),
+                                    ),
+                                    title: Text(expense.title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    subtitle: Text('${expense.categoryName} • ${expense.formattedDate}'),
+                                    trailing: Text(
+                                      expense.formattedAmount,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red[700],
+                                      ),
+                                    ),
+                                    onTap: () => _showExpenseDetails(context, expense),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          onTap: () => _showExpenseDetails(context, expense),
-                        ),
-                      );
-                    },
-                  ),
           ),
         ],
       ),
