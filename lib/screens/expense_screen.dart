@@ -7,6 +7,7 @@ import '../models/expense_model.dart';
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
 import 'statistics_screen.dart';
+import '../logic/pdf_generator.dart'; // Impor service PDF
 
 // --- UI SCREEN ---
 class ExpenseScreen extends StatefulWidget {
@@ -234,6 +235,43 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     );
   }
 
+  // Fungsi untuk export ke PDF
+  void _exportToPdf() async {
+    if (_filteredExpenses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada data untuk diekspor.')),
+      );
+      return;
+    }
+
+    // Tampilkan loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final period = _selectedMonth != null
+          ? DateFormat('MMMM yyyy', 'id_ID').format(_selectedMonth!)
+          : 'Semua Waktu';
+      
+      // Panggil fungsi utama yang sudah menangani semua platform
+      await PdfExportService.createAndOpenPdf(_filteredExpenses, period);
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal membuat PDF: $e')),
+      );
+    } finally {
+      // Hilangkan loading
+      // Cek jika widget masih ada di tree sebelum memanggil pop
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Daftar kategori dinamis dari data yang ada + 'Semua'
@@ -252,6 +290,11 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         foregroundColor: Colors.black,
         elevation: 1,
         actions: [
+          // Tombol Export PDF
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            onPressed: _exportToPdf,
+          ),
           IconButton(
             icon: const Icon(Icons.bar_chart),
             onPressed: () {
