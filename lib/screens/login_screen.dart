@@ -16,12 +16,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authLogic = AuthLogic();
+  bool _isLoading = false; // Tambahkan state loading
 
   void _login() async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
+    setState(() {
+      _isLoading = true; // Mulai loading
+    });
+
     final User? loggedInUser = await _authLogic.login(username, password);
+
+    setState(() {
+      _isLoading = false; // Selesai loading
+    });
 
     if (loggedInUser != null) {
       if (mounted) {
@@ -95,19 +104,21 @@ class _LoginScreenState extends State<LoginScreen> {
             // Login Button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _login, // Panggil fungsi _login
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text(
-                  'LOGIN',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('LOGIN'),
+                    ),
             ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 16),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

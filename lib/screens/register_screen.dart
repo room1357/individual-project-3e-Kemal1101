@@ -42,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = true;
     });
 
-    final bool isRegistered = await _authLogic.register(fullName, username, email, password);
+    final result = await _authLogic.register(fullName, username, email, password);
 
     if (!mounted) return;
 
@@ -50,14 +50,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _isLoading = false;
     });
 
-    if (isRegistered) {
+    if (result['status'] == 'success') {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registrasi berhasil! Silakan login.'), backgroundColor: Colors.green),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username sudah digunakan atau terjadi kesalahan!'), backgroundColor: Colors.red),
+        SnackBar(content: Text(result['message'] ?? 'Terjadi kesalahan.'), backgroundColor: Colors.red),
       );
     }
   }

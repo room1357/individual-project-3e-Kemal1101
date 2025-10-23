@@ -3,21 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
-
-// Model untuk kategori
-class Category {
-  final int id;
-  final String name;
-
-  Category({required this.id, required this.name});
-
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
-      id: int.parse(json['category_id']),
-      name: json['name'],
-    );
-  }
-}
+import '../models/category_model.dart'; // Menggunakan model terpusat
 
 class AddExpenseScreen extends StatefulWidget {
   final User user;
@@ -101,7 +87,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           uri,
           headers: {'Content-Type': 'application/json'},
           body: json.encode({
-            'user_id': widget.user.userId,
+            'user_id': widget.user.id, // Menggunakan user.id
             'category_id': _selectedCategoryId,
             'judul': _titleController.text, // Ditambahkan
             'amount': double.tryParse(_amountController.text.replaceAll('.', '')),

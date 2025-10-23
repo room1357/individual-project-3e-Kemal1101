@@ -2,82 +2,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import '../models/user_model.dart'; // Impor User model
+import '../models/user_model.dart';
+import '../models/expense_model.dart';
 import 'add_expense_screen.dart';
 import 'edit_expense_screen.dart';
+import 'statistics_screen.dart';
 
-// --- MODEL DATA (Diperbarui untuk cocok dengan JSON dari DB) ---
-class Expense {
-  final int expenseId;
-  final int userId;
-  final int categoryId;
-  final String categoryName;
-  final String? categoryIcon;
-  final String judul;
-  final double amount;
-  final String description;
-  final DateTime date;
-
-  Expense({
-    required this.expenseId,
-    required this.userId,
-    required this.categoryId,
-    required this.judul,
-    required this.categoryName,
-    this.categoryIcon,
-    required this.amount,
-    required this.description,
-    required this.date,
-  });
-
-  // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'title')
-  String get title => judul;
-  // Getter untuk kompatibilitas dengan UI yang ada (menggunakan 'category')
-  String get category => categoryName;
-
-  factory Expense.fromJson(Map<String, dynamic> json) {
-    return Expense(
-      expenseId: json['expense_id'] as int,
-      userId: json['user_id'] as int,
-      categoryId: json['category_id'] as int,
-      judul: json['judul'] as String,
-      categoryName: json['category_name'] as String,
-      categoryIcon: json['category_icon'] as String?,
-      amount: (json['amount'] as num).toDouble(),
-      description: json['description'] as String,
-      date: DateTime.parse(json['date']),
-    );
-  }
-
-  // Helper untuk format mata uang
-  String get formattedAmount {
-    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
-    return format.format(amount);
-  }
-
-  // Helper untuk format tanggal
-  String get formattedDate {
-    return DateFormat('d MMM yyyy', 'id_ID').format(date);
-  }
-}
-
-// --- LOGIC MANAGER (Tidak digunakan lagi, data diambil dari API) ---
-class ExpenseManager {
-  static List<String> categories = [
-    'Makanan',
-    'Transportasi',
-    'Hiburan',
-    'Kebutuhan',
-    'Pendidikan',
-    'Utilitas',
-  ];
-}
-
-
-// --- UI SCREEN (Versi Advanced dengan data dari Database) ---
+// --- UI SCREEN ---
 class ExpenseScreen extends StatefulWidget {
-  final User user; // Terima user yang sedang login
-  const ExpenseScreen({super.key, required this.user});
+  const ExpenseScreen({super.key});
 
   @override
   _ExpenseScreenState createState() => _ExpenseScreenState();
@@ -96,7 +29,16 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchExpenses();
+    // Pastikan user sudah login sebelum fetch data
+    if (User.currentUser != null) {
+      _fetchExpenses();
+    } else {
+      // Handle kasus jika tidak ada user yang login (misal: redirect ke login)
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Sesi tidak ditemukan. Silakan login kembali.";
+      });
+    }
   }
 
   Future<void> _fetchExpenses() async {
@@ -106,7 +48,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     });
 
     try {
-      final uri = Uri.parse('http://192.168.100.138/expenseapp/get_expense.php?user_id=${widget.user.userId}');
+      // Gunakan ID dari User.currentUser
+      // Tambahkan parameter untuk mengambil semua data
+      final uri = Uri.parse('http://192.168.100.138/expenseapp/get_expense.php?user_id=${User.currentUser!.id}&all=true');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -158,9 +102,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
   // Fungsi untuk navigasi ke halaman tambah dan refresh data setelah kembali
   void _navigateAndRefresh() async {
+    if (User.currentUser == null) return; // Guard clause
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddExpenseScreen(user: widget.user)),
+      MaterialPageRoute(builder: (context) => AddExpenseScreen(user: User.currentUser!)),
     );
 
     // Jika `result` adalah true, berarti ada data baru, panggil API lagi
@@ -211,18 +156,18 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     return format.format(average);
   }
 
-  // Color _getCategoryColor(String category) {
-  //   // Fungsi ini bisa diperluas atau diubah menjadi lebih dinamis jika diperlukan
-  //   switch (category) {
-  //     case 'Makanan': return Colors.orange;
-  //     case 'Transportasi': return Colors.blue;
-  //     case 'Hiburan': return Colors.purple;
-  //     case 'Kebutuhan': return Colors.green;
-  //     case 'Pendidikan': return Colors.indigo;
-  //     case 'Utilitas': return Colors.red;
-  //     default: return Colors.grey;
-  //   }
-  // }
+  Color _getCategoryColor(String category) {
+    // Fungsi ini bisa diperluas atau diubah menjadi lebih dinamis jika diperlukan
+    switch (category) {
+      case 'Makanan': return Colors.orange;
+      case 'Transportasi': return Colors.blue;
+      case 'Hiburan': return Colors.purple;
+      case 'Kebutuhan': return Colors.green;
+      case 'Pendidikan': return Colors.indigo;
+      case 'Utilitas': return Colors.red;
+      default: return Colors.grey;
+    }
+  }
 
   // Fungsi _getCategoryIcon dihapus karena tidak lagi diperlukan.
 
@@ -259,7 +204,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   // Menampilkan emoji langsung dari database
                   Text(expense.categoryIcon ?? '❓', style: const TextStyle(fontSize: 18)),
                   const SizedBox(width: 8),
-                  Text(expense.category, style: const TextStyle(fontSize: 16)),
+                  Text(expense.categoryName, style: const TextStyle(fontSize: 16)), // Menggunakan categoryName
                   const Spacer(),
                   const Icon(Icons.calendar_today, color: Colors.grey, size: 16),
                   const SizedBox(width: 8),
@@ -301,6 +246,23 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         .toList();
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daftar Pengeluaran'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StatisticsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       // Tombol Tambah Pengeluaran
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateAndRefresh,
@@ -417,7 +379,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      // backgroundColor: _getCategoryColor(expense.categoryName),
+                                      backgroundColor: _getCategoryColor(expense.categoryName),
                                       // Menampilkan emoji langsung dari database
                                       child: Text(
                                         expense.categoryIcon ?? '❓',

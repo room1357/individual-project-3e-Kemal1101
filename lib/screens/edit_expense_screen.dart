@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'expense_screen.dart'; // Untuk mengakses kelas Expense
-import 'add_expense_screen.dart'; // Untuk mengakses kelas Category
+import '../models/expense_model.dart'; // Menggunakan model Expense terpisah
+import '../models/category_model.dart'; // Menggunakan model Category terpusat
 
 class EditExpenseScreen extends StatefulWidget {
   final Expense expense;
@@ -34,7 +34,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
     super.initState();
     _fetchCategories();
     // Isi form dengan data yang ada dari widget.expense
-    _titleController = TextEditingController(text: widget.expense.judul);
+    _titleController = TextEditingController(text: widget.expense.title); // Menggunakan .title
     _descriptionController = TextEditingController(text: widget.expense.description);
     _amountController = TextEditingController(text: widget.expense.amount.toStringAsFixed(0));
     _selectedCategoryId = widget.expense.categoryId;

@@ -23,7 +23,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void initState() {
     super.initState();
     _widgetOptions = <Widget>[
-      ExpenseScreen(user: widget.user),
+      const ExpenseScreen(),
       ProfileScreen(user: widget.user, onLogout: widget.onLogout),
       const SettingsScreen(),
     ];
@@ -35,32 +35,9 @@ class _MainScaffoldState extends State<MainScaffold> {
     });
   }
 
-  String _getTitle(int index) {
-    switch (index) {
-      case 0:
-        return 'Expenses';
-      case 1:
-        return 'Profile';
-      case 2:
-        return 'Settings';
-      default:
-        return 'Expenses';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(_selectedIndex)),
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            onPressed: widget.onLogout,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
