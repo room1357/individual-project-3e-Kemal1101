@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
-$servername = "172.16.1.125";
+$servername = "192.168.100.138";
 $username = "root";
 $password = "";
 $dbname = "db_expense_app";
@@ -15,7 +15,7 @@ if ($conn->connect_error) {
     die(json_encode(["status" => "error", "message" => "Koneksi gagal: " . $conn->connect_error]));
 }
 
-$sql = "SELECT category_id, name FROM categories ORDER BY name";
+$sql = "SELECT category_id, name, icon FROM categories ORDER BY name";
 $result = $conn->query($sql);
 
 $categories = array();

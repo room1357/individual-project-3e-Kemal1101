@@ -43,7 +43,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
   
   Future<void> _fetchCategories() async {
     try {
-      final response = await http.get(Uri.parse('http://172.16.1.125/expenseapp/get_categories.php'));
+      final response = await http.get(Uri.parse('http://192.168.100.138/expenseapp/get_categories.php'));
       if (response.statusCode == 200) {
         final List<dynamic> categoryJson = json.decode(response.body);
         setState(() {
@@ -92,7 +92,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://172.16.1.125/expenseapp/edit_expense.php');
+        final uri = Uri.parse('http://192.168.100.138/expenseapp/edit_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},
@@ -100,7 +100,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
             'expense_id': widget.expense.expenseId, // Kirim ID pengeluaran yang akan diubah
             'category_id': _selectedCategoryId,
             'judul': _titleController.text,
-            'amount': _amountController.text.replaceAll('.', ''),
+            'amount': double.tryParse(_amountController.text.replaceAll('.', '')),
             'description': _descriptionController.text,
             'date': DateFormat('yyyy-MM-dd').format(_selectedDate!),
           }),
@@ -162,7 +162,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://172.16.1.125/expenseapp/delete_expense.php');
+        final uri = Uri.parse('http://192.168.100.138/expenseapp/delete_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},

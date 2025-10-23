@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-$servername = "172.16.1.125";
+$servername = "192.168.100.138";
 $username = "root";
 $password = "";
 $dbname = "db_expense_app";

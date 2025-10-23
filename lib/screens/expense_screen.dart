@@ -106,7 +106,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     });
 
     try {
-      final uri = Uri.parse('http://172.16.1.125/expenseapp/get_expense.php?user_id=${widget.user.userId}');
+      final uri = Uri.parse('http://192.168.100.138/expenseapp/get_expense.php?user_id=${widget.user.userId}');
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -211,29 +211,20 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     return format.format(average);
   }
 
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'Makanan': return Colors.orange;
-      case 'Transportasi': return Colors.blue;
-      case 'Hiburan': return Colors.purple;
-      case 'Kebutuhan': return Colors.green;
-      case 'Pendidikan': return Colors.indigo;
-      case 'Utilitas': return Colors.red;
-      default: return Colors.grey;
-    }
-  }
+  // Color _getCategoryColor(String category) {
+  //   // Fungsi ini bisa diperluas atau diubah menjadi lebih dinamis jika diperlukan
+  //   switch (category) {
+  //     case 'Makanan': return Colors.orange;
+  //     case 'Transportasi': return Colors.blue;
+  //     case 'Hiburan': return Colors.purple;
+  //     case 'Kebutuhan': return Colors.green;
+  //     case 'Pendidikan': return Colors.indigo;
+  //     case 'Utilitas': return Colors.red;
+  //     default: return Colors.grey;
+  //   }
+  // }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Makanan': return Icons.fastfood;
-      case 'Transportasi': return Icons.directions_car;
-      case 'Hiburan': return Icons.movie;
-      case 'Kebutuhan': return Icons.shopping_cart;
-      case 'Pendidikan': return Icons.school;
-      case 'Utilitas': return Icons.power;
-      default: return Icons.category;
-    }
-  }
+  // Fungsi _getCategoryIcon dihapus karena tidak lagi diperlukan.
 
   void _showExpenseDetails(BuildContext context, Expense expense) {
     showModalBottomSheet(
@@ -265,7 +256,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(_getCategoryIcon(expense.category), color: _getCategoryColor(expense.category), size: 18),
+                  // Menampilkan emoji langsung dari database
+                  Text(expense.categoryIcon ?? '❓', style: const TextStyle(fontSize: 18)),
                   const SizedBox(width: 8),
                   Text(expense.category, style: const TextStyle(fontSize: 16)),
                   const Spacer(),
@@ -425,8 +417,12 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
                                   child: ListTile(
                                     leading: CircleAvatar(
-                                      backgroundColor: _getCategoryColor(expense.categoryName),
-                                      child: Icon(_getCategoryIcon(expense.categoryName), color: Colors.white, size: 20),
+                                      // backgroundColor: _getCategoryColor(expense.categoryName),
+                                      // Menampilkan emoji langsung dari database
+                                      child: Text(
+                                        expense.categoryIcon ?? '❓',
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
                                     ),
                                     title: Text(expense.title, style: const TextStyle(fontWeight: FontWeight.w600)),
                                     subtitle: Text('${expense.categoryName} • ${expense.formattedDate}'),

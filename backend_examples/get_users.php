@@ -6,7 +6,7 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *'); // for local testing only
 
-$DB_HOST = '172.16.1.125';
+$DB_HOST = '192.168.100.138';
 $DB_USER = 'root';
 $DB_PASS = '';
 $DB_NAME = 'expenseapp';

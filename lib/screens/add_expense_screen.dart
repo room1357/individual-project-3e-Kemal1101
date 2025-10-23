@@ -47,7 +47,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Future<void> _fetchCategories() async {
     try {
-      final response = await http.get(Uri.parse('http://172.16.1.125/expenseapp/get_categories.php'));
+      final response = await http.get(Uri.parse('http://192.168.100.138/expenseapp/get_categories.php'));
       if (response.statusCode == 200) {
         final List<dynamic> categoryJson = json.decode(response.body);
         setState(() {
@@ -96,7 +96,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       });
 
       try {
-        final uri = Uri.parse('http://172.16.1.125/expenseapp/add_expense.php');
+        final uri = Uri.parse('http://192.168.100.138/expenseapp/add_expense.php');
         final response = await http.post(
           uri,
           headers: {'Content-Type': 'application/json'},

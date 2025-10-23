@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
-$DB_HOST = '172.16.1.125';
+$DB_HOST = '192.168.100.138';
 $DB_USER = 'root';
 $DB_PASS = '';
 $DB_NAME = 'expenseapp';
