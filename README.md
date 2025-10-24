@@ -29,6 +29,7 @@
     -   Diagram lingkaran (Pie Chart) untuk memvisualisasikan persentase pengeluaran per kategori.
     -   Ringkasan total pengeluaran.
     -   Filter data statistik berdasarkan bulan dan tahun.
+-   **Ekspor ke PDF**: Membuat laporan pengeluaran dalam format PDF berdasarkan data yang telah difilter, yang bisa disimpan atau dibagikan.
 -   **Desain Intuitif**: Antarmuka yang bersih dan mudah digunakan untuk pengalaman pengguna yang lebih baik.
 
 ## 🛠️ Tumpukan Teknologi
@@ -40,6 +41,8 @@
 -   **HTTP Client**: `http` package untuk komunikasi dengan API.
 -   **Grafik/Chart**: `fl_chart` untuk membuat diagram statistik.
 -   **Format**: `intl` untuk format mata uang dan tanggal.
+-   **Pembuatan PDF**: `pdf` dan `printing` untuk membuat dan menampilkan laporan PDF.
+-   **Akses File**: `path_provider` dan `open_file` untuk menyimpan dan membuka file di perangkat.
 
 ### Backend (Server-side)
 -   **Bahasa**: PHP
